@@ -44,6 +44,7 @@ runcmd("mkdir -p \Q$DBDIR\E") if (! -d $DBDIR);
 runcmd("mkdir -p \Q$tmp_dir\E") if (! -d $tmp_dir);
 runcmd("mkdir -p \Q$diamond_dir\E") if(! -d $diamond_dir);
 runcmd("mkdir -p \Q$protein_hmm_dir\E") if (! -d $protein_hmm_dir);
+runcmd("mkdir -p \Q$rna_hmm_dir\E") if (! -d $rna_hmm_dir);
 runcmd("mkdir -p \Q$sqlite_dir\E") if (! -d $sqlite_dir);
 runcmd("mkdir -p \Q$blast_dir\E") if (! -d $blast_dir);
 
