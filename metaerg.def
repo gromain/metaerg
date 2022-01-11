@@ -1,0 +1,108 @@
+Bootstrap: docker
+From: ubuntu:20.04
+
+%environment
+    export MinPath=/NGStools/MinPath
+    export PATH="/NGStools/aragorn:/NGStools/minced:/NGStools/Prodigal:/NGStools/ncbi-blast-2.9.0+/bin:/NGStools/diamond:/NGStools/hmmer/src:/NGStools/MinPath:/NGStools/metaerg/bin:${PATH}"
+    export LANG="C"
+    
+
+%post
+    mkdir -p /NGStools
+    cd /NGStools
+    # TZdata on 20.04 requires noninteractive to work
+    DEBIAN_FRONTEND=noninteractive TZ=America/Edmonton apt-get update && apt-get install -y tzdata
+
+    # Install compiler and perl stuff
+    apt-get install -y autoconf cpanminus gcc-multilib git make openjdk-8-jdk perl python3 sqlite3 tar unzip wget
+
+    # Install libraries that BioPerl dependencies depend on
+    apt-get install -y expat graphviz libdb-dev libgdbm-dev libexpat1 libexpat-dev libssl-dev libxml2-dev libxslt1-dev zlib1g-dev
+
+    # Install perl modules
+    cpanm -n -q Archive::Extract Bio::Perl Bio::DB::EUtilities DBD::SQLite DBI File::Copy::Recursive HTML::Entities HTTP::Request LWP::Protocol::https URI 
+    
+    # Install SWISS Entry and SWISS KW
+    cd /NGStools
+    git clone --depth=1 https://git.code.sf.net/p/swissknife/git swissknife-git
+    cd swissknife-git
+    perl Makefile.PL 
+    make install
+
+    # aragorn
+    cd /NGStools
+    git clone --depth=1 https://github.com/TheSEED/aragorn.git
+    cd aragorn
+    gcc -O3 -ffast-math -finline-functions -o aragorn aragorn1.2.36.c
+
+    # hmmer rRNAFinder need it
+    cd /NGStools
+    git clone --depth=1 https://github.com/EddyRivasLab/hmmer
+    cd hmmer
+    git clone --depth=1 https://github.com/EddyRivasLab/easel
+    autoconf
+    ./configure
+    make
+
+    # blast for classifying rRNA sequences
+    cd /NGStools
+    wget ftp://ftp.ncbi.nlm.nih.gov/blast/executables/blast+/2.9.0/ncbi-blast-2.9.0+-x64-linux.tar.gz
+    tar -xzf ncbi-blast-2.9.0+-x64-linux.tar.gz
+    rm ncbi-blast-2.9.0+-x64-linux.tar.gz
+
+    # prodigal
+    cd /NGStools
+    git clone --depth=1 https://github.com/hyattpd/Prodigal.git
+    cd Prodigal
+    make
+
+    # minced
+    cd /NGStools
+    git clone --depth=1 https://github.com/ctSkennerton/minced.git
+    cd minced
+    make
+
+    # diamond
+    cd /NGStools
+    mkdir diamond
+    cd diamond
+    wget https://github.com/bbuchfink/diamond/releases/download/v2.0.13/diamond-linux64.tar.gz
+    tar -xzf diamond-linux64.tar.gz
+    rm diamond-linux64.tar.gz diamond_manual.pdf
+
+    # MinPath
+    cd /NGStools
+    git clone --depth=1 https://github.com/mgtools/MinPath
+
+    # metaerg
+    cd /NGStools
+    git clone --depth=1 https://github.com/gromain/metaerg.git
+    
+    # Cleanup
+    apt-get remove -y autoconf cpanminus gcc-multilib git make
+    apt-get autoclean -y
+
+
+%runscript
+    cd /NGStools/
+
+
+%labels
+    Author Romain Bazile <romain@bazile.io>
+    Version v1.0.1
+
+
+%help
+    This container provides a full MetaERG image ready to use. All the dependencies
+    are installed in the /NGStools folder.
+    You need to build a database (or download it first) to fully use this tool. To
+    do so, you can use the following command:
+    singularity exec --bind LOCAL_DATA_FOLDER/:/data/ metaerg.sif setup_db.pl -o /data -v 132
+    Please replace the LOCAL_DATA_FOLDER above with a path to a correct and writable folder.
+    
+    If you want to download the 25GB database, please use the following:
+    wget http://ebg.ucalgary.ca/metaerg/db.tar.gz -P LOCAL_DATA_FOLDER
+    tar -xvzf LOCAL_DATA_FOLDER/db.tar.gz
+    
+    The container is then initialised and ready to use, with for example the following:
+    singularity exec --bind LOCAL_DATA_FOLDER/:/data/ metaerg.sif metaerg.pl --dbdir /data/db --outdir /data/my_metaerg_output /data/contig.fasta
