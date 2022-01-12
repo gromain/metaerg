@@ -97,7 +97,7 @@ From: ubuntu:20.04
     are installed in the /NGStools folder.
     You need to build a database (or download it first) to fully use this tool. To
     do so, you can use the following command:
-    singularity exec --bind LOCAL_DATA_FOLDER/:/data/ metaerg.sif setup_db.pl -o /data -v 132
+    singularity exec --bind LOCAL_DATA_FOLDER/:/data/ metaerg.sif setup_db.pl -o /data
     Please replace the LOCAL_DATA_FOLDER above with a path to a correct and writable folder.
     
     If you want to download the 25GB database, please use the following:
