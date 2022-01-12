@@ -68,7 +68,7 @@ From: ubuntu:20.04
     cd diamond
     wget https://github.com/bbuchfink/diamond/releases/download/v2.0.13/diamond-linux64.tar.gz
     tar -xzf diamond-linux64.tar.gz
-    rm diamond-linux64.tar.gz diamond_manual.pdf
+    rm diamond-linux64.tar.gz
 
     # MinPath
     cd /NGStools
