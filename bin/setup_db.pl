@@ -16,7 +16,7 @@ use Time::Piece;
 use File::Basename;
 use Cwd 'abs_path';
 my ($outdir, $ssu_version, $lsu_version);
-$ssu_version = "138";
+$ssu_version = "138_1";
 $lsu_version = "132";
 &GetOptions(
     "o=s" =>\$outdir
@@ -93,7 +93,7 @@ sub build_uniprot_sprot_db{
     #runcmd($cmd);
     msg("Start to parse $tmp_dir/uniprot_sprot.dat");
     if(! -e "$tmp_dir/sprot.sqldb.tsv"){
-	              
+
 	parse_uniprot_sport_dat("$tmp_dir/uniprot_sprot.dat", "$tmp_dir/sprot.sqldb.tsv");
     }
 }
@@ -758,7 +758,7 @@ sub build_rRNAFinder_txondb{
 
 	msg("checking $tmp_dir/$file.gz");
 	if(! -e "$tmp_dir/$file.gz"){
-	    
+
             ### build a File::Fetch object ###
             #my $ff = File::Fetch->new(uri => "https://www.arb-silva.de/fileadmin/silva_databases/current/Exports/$file");
        my $ff = File::Fetch->new(uri => "https://www.arb-silva.de/fileadmin/silva_databases/release_$ssu_version/Exports/$file.gz");
@@ -785,7 +785,7 @@ sub build_rRNAFinder_txondb{
 	msg("get ssu DNA file from $tmp_dir/$ssu to $blast_dir/silva_SSURef_Nr99.fasta for blast search database making");
 	while(<SSU>){
 	    if (/^>(\S+?)\s+(\S+.*)$/){
-		
+
 		print SSU_DNA ">$1 [$2]\n";
 	    }
 	    else{
@@ -802,10 +802,10 @@ sub build_rRNAFinder_txondb{
 	msg("get lsu DNA file from $tmp_dir/$lsu to $blast_dir/silva_LSURef.fasta for blast search database making");
 	while(<LSU>){
 	    if (/^>(\S+?)\s+(\S+.*)$/){
-		
+
 		print LSU_DNA ">$1 [$2]\n";
 	    }
-	    
+
 	    else{
 		s/U/T/g;
 		print LSU_DNA $_;
@@ -814,7 +814,7 @@ sub build_rRNAFinder_txondb{
 	close(LSU);
 	close(LSU_DNA);
     }
-   
+
     if(! -e "$blast_dir/silva_SSURef_Nr99.fasta.nin"){
 	my $cmd = "makeblastdb -input_type fasta -dbtype nucl  -in $blast_dir/silva_SSURef_Nr99.fasta;";
 	msg("Start running:$cmd");
