@@ -89,7 +89,7 @@ From: ubuntu:20.04
 
 %labels
     Author Romain Bazile <romain@bazile.io>
-    Version v1.0.2
+    Version v1.0.3
 
 
 %help
