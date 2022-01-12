@@ -751,7 +751,7 @@ sub build_rRNAFinder_txondb{
 
     my $ssu = "SILVA_138.1_SSURef_NR99_tax_silva_trunc.fasta";
     #my $lsu = "SILVA_132_LSURef_tax_silva_trunc.fasta";
-    my $lsu = "SILVA_138.1_LSURef_NR99_tax_silva_trunc.fasta.gz";
+    my $lsu = "SILVA_138.1_LSURef_NR99_tax_silva_trunc.fasta";
     my @files = ($ssu, $lsu);
 
     foreach my $file (@files){
