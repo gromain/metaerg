@@ -72,14 +72,14 @@ sub build_uniprot_sprot_db {
             # build a File::Fetch object
             my $ff =
               File::Fetch->new( uri =>
-"ftp://ftp.uniprot.org/pub/databases/uniprot/current_release/knowledgebase/complete/$file"
+"https://ftp.uniprot.org/pub/databases/uniprot/current_release/knowledgebase/complete/$file"
               );
 
             #fetch the uri to local directory
             #my $where = $ff->fetch(to => $tmp_dir) or die $ff->error, "$!\n";";
             my $where = $ff->fetch( to => $tmp_dir )
               or die
-"Could not fetch ftp://ftp.uniprot.org/pub/databases/uniprot/current_release/knowledgebase/complete/$file, $!\n";
+"Could not fetch https://ftp.uniprot.org/pub/databases/uniprot/current_release/knowledgebase/complete/$file, $!\n";
         }
     }
 
@@ -244,7 +244,7 @@ sub build_pfam_db {
             #build a File::Fetch object
             my $ff =
               File::Fetch->new( uri =>
-                  "ftp://ftp.ebi.ac.uk/pub/databases/Pfam/current_release/$file"
+"https://ftp.ebi.ac.uk/pub/databases/Pfam/current_release/$file"
               );
 
             #fetch the uri to local directory
@@ -266,8 +266,8 @@ sub build_pfam_db {
         $ae->extract( to => $protein_hmm_dir );
     }
     if ( !-e "$tmp_dir/pfam2go" ) {
-        my $ff = File::Fetch->new(
-            uri => "http://geneontology.org/external2go/pfam2go" );
+        my $ff = File::Fetch->new( uri =>
+              "http://current.geneontology.org/ontology/external2go/pfam2go" );
         msg("Fetching pfam2go");
         my $where = $ff->fetch( to => $tmp_dir ) or die $ff->error;
     }
@@ -335,15 +335,14 @@ sub build_tigrfam_db {
         if ( !-e "$tmp_dir/$file" ) {
 
             #build a File::Fetch object
-            my $ff = File::Fetch->new(
-                uri => "ftp://ftp.jcvi.org/pub/data/TIGRFAMs/$file" );
+            my $ff =
+              File::Fetch->new( uri =>
+                  "https://ftp.ncbi.nlm.nih.gov/hmm/TIGRFAMs/release_15.0/$file"
+              );
 
             #fetch the uri to local directory
             msg("Fetching $file");
             my $where = $ff->fetch( to => $tmp_dir ) or die $ff->error;
-
-       #my $cmd = "wget ftp://ftp.jcvi.org/pub/data/TIGRFAMs/$file -O $tmp_dir";
-       #system($cmd) == 0 or err("Could not run command:$cmd");
         }
     }
 
@@ -494,24 +493,24 @@ sub tigrfam_id2go_table {
 }
 
 sub build_go_db {
-
-    my $file = "go_daily-termdb.rdf-xml.gz";
+    ### TODO update this to use the new ontology see https://github.com/geneontology/helpdesk/issues/302
+    my $file = "go_monthly-termdb.rdf-xml.gz";
     if ( !-e "$tmp_dir/$file" ) {
 
         #build a File::Fetch object
-        my $ff = File::Fetch->new(
-            uri => "http://archive.geneontology.org/latest-termdb/$file" );
+        my $ff = File::Fetch->new( uri =>
+              "http://release.geneontology.org/2017-01-01/mysql_dumps/$file" );
         ### fetch the uri to local directory###
         msg("Fetching $file");
         my $where = $ff->fetch( to => $tmp_dir ) or die $ff->error;
     }
 
-    if ( !-e "$tmp_dir/go_daily-termdb.rdf-xml" ) {
+    if ( !-e "$tmp_dir/go_monthly-termdb.rdf-xml" ) {
         msg("Uncompressing $tmp_dir/$file");
         my $ae = Archive::Extract->new( archive => "$tmp_dir/$file" );
         $ae->extract( to => "$tmp_dir" );
     }
-    go_table( "$tmp_dir/go_daily-termdb.rdf-xml", "$tmp_dir/go.sqldb.tsv" );
+    go_table( "$tmp_dir/go_monthly-termdb.rdf-xml", "$tmp_dir/go.sqldb.tsv" );
 
 }
 
@@ -549,12 +548,12 @@ sub build_foam_hmmdb {
       )
     {
         # build a File::Fetch object
-        my $ff = File::Fetch->new(
-            uri => "http://ebg.ucalgary.ca/metaerg/FOAM-hmm_rel1a.hmm.gz" );
-        msg("Fetching FOAM-hmm_rel1a.hmm.gz");
+        my $ff = File::Fetch->new( uri => "https://osf.io/bdpv5/download" );
 
         #fetch the uri to local directory
+        msg("Fetching FOAM-hmm_rel1a.hmm.gz");
         my $where = $ff->fetch( to => $tmp_dir ) or die $ff->error;
+        rename "$tmp_dir/download", "$tmp_dir/FOAM-hmm_rel1a.hmm.gz";
         msg("Uncompressing $tmp_dir/FOAM-hmm_rel1a.hmm.gz");
         gunzip "$tmp_dir/FOAM-hmm_rel1a.hmm.gz" =>
           "$protein_hmm_dir/FOAM-hmm_rel1a.hmm"
@@ -676,8 +675,8 @@ sub build_rRNAFinder_hmmdb {
     #annotated seed alignments in STOCKHOLM format
     my $rfam = "Rfam.seed";
     if ( !-e "$tmp_dir/$rfam.gz" ) {
-        my $ff = File::Fetch->new(
-            uri => "ftp://ftp.ebi.ac.uk/pub/databases/Rfam/CURRENT/$rfam.gz" );
+        my $ff = File::Fetch->new( uri =>
+              "https://ftp.ebi.ac.uk/pub/databases/Rfam/CURRENT/$rfam.gz" );
 
 ### fetch the uri to local directory###
         msg("Fetching $rfam.gz");
@@ -956,8 +955,8 @@ sub build_enzyme_table {
 
         # build a File::Fetch object
         my $ff = File::Fetch->new(
-            uri => "ftp://ftp.expasy.org/databases/enzyme/enzyme.dat" );
-        msg("Fetching ftp://ftp.expasy.org/databases/enzyme/enzyme.dat");
+            uri => "https://ftp.expasy.org/databases/enzyme/enzyme.dat" );
+        msg("Fetching https://ftp.expasy.org/databases/enzyme/enzyme.dat");
 
         #fetch the uri to local directory
         my $where = $ff->fetch( to => $tmp_dir ) or die $ff->error;
@@ -966,8 +965,8 @@ sub build_enzyme_table {
 
         # build a File::Fetch object
         my $ff = File::Fetch->new(
-            uri => "ftp://ftp.expasy.org/databases/enzyme/enzclass.txt" );
-        msg("Fetching ftp://ftp.expasy.org/databases/enzyme/enzclass.txt");
+            uri => "https://ftp.expasy.org/databases/enzyme/enzclass.txt" );
+        msg("Fetching https://ftp.expasy.org/databases/enzyme/enzclass.txt");
 
         #fetch the uri to local directory
         my $where = $ff->fetch( to => $tmp_dir ) or die $ff->error;
