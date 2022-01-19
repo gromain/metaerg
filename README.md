@@ -1,13 +1,11 @@
-
 # MetaErg
-MetaErg is a stand-alone and fully automated metagenomic and metaproteomic data annotation pipeline. It bundles essential annotation tasks such as feature prediction, functional annotation wit
-h Hidden Markov Model (HMM) searches as well as blast and diamond searches. It estimates and visualizes quantitative taxonomic and pathway compositions of multiple metagenomic and proteomics s
-amples using sequencing coverage and proteomics spectral counts, respectively. For visualization, MetaErg provides a HTML interface, bringing all annotation results together in sortable and se
-archable tables, collapsible trees, and other graphic representations, enabling intuitive navigation of complex data.
+MetaErg is a stand-alone and fully automated metagenomic and metaproteomic data annotation pipeline. It bundles essential annotation tasks such as feature prediction, functional annotation with Hidden Markov Model (HMM) searches as well as blast and diamond searches. It estimates and visualizes quantitative taxonomic and pathway compositions of multiple metagenomic and proteomics samples using sequencing coverage and proteomics spectral counts, respectively. For visualization, MetaErg provides a HTML interface, bringing all annotation results together in sortable and searchable tables, collapsible trees, and other graphic representations, enabling intuitive navigation of complex data.
+
+In 2022, an update to the databases and underlying working of the model has been started by Romain Bazile and Aurélie Labarre. A singularity image has been setup and the docker image is deprecated for now. The original code is still available here: https://www.github.com/xiali-dong/metaerg .
 
 A MetaErg analysis output demo page can be found at: https://xiaoli-dong.github.io/metaerg/
 
-A MetaErg Docker application can be found here: https://hub.docker.com/r/xiaolidong/docker-metaerg
+A MetaErg Singularity image can be found here: https://cloud.sylabs.io/library/rbazile/default/metaerg
 
 Please cite the following: [Dong X and Strous M (2019) An Integrated Pipeline for Annotation and Visualization of Metagenomic Contigs. Front. Genet. 10:999. doi: 10.3389/fgene.2019.00999](http
 s://www.frontiersin.org/articles/10.3389/fgene.2019.00999/full)
