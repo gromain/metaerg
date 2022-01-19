@@ -61,6 +61,7 @@ build_kegg_table();
 build_sqlite_db($sqlfile);
 
 sub build_uniprot_sprot_db {
+    msg("Start building uniprot sprot db");
 
     my @files =
       ( "uniprot_sprot.fasta.gz", "uniprot_sprot.dat.gz", "reldate.txt" );
@@ -233,6 +234,7 @@ sub parse_uniprot_sport_dat {
 }
 
 sub build_pfam_db {
+    msg("Start building pfam db");
 
     my @files = ( "Pfam-A.hmm.gz", "Pfam-A.hmm.dat.gz", "Pfam.version.gz",
         "userman.txt" );
@@ -323,6 +325,7 @@ sub build_pfam_db {
 }
 
 sub build_tigrfam_db {
+    msg("Start building tigrfam db");
 
     my @files = (
         "TIGRFAMs_15.0_HMM.LIB.gz",  "TIGRFAMS_GO_LINK",
@@ -493,6 +496,8 @@ sub tigrfam_id2go_table {
 }
 
 sub build_go_db {
+    msg("Start building go db");
+
     ### TODO update this to use the new ontology see https://github.com/geneontology/helpdesk/issues/302
     my $file = "go_monthly-termdb.rdf-xml.gz";
     if ( !-e "$tmp_dir/$file" ) {
@@ -539,6 +544,7 @@ sub go_table {
 }
 
 sub build_foam_hmmdb {
+    msg("Start building FOAM hmm db");
 
     if (
         !-e (
@@ -567,6 +573,7 @@ sub build_foam_hmmdb {
 }
 
 sub build_genomedb {
+    msg("Start building genome db");
 
     if ( !-e "$diamond_dir/genomedb.dmnd" ) {
 
@@ -596,6 +603,7 @@ sub build_genomedb {
 }
 
 sub build_metabolic_hmmdb {
+    msg("Start building metabolic hmm db");
 
     if ( !-e "$protein_hmm_dir/metabolic.hmm" ) {
 
@@ -614,6 +622,7 @@ sub build_metabolic_hmmdb {
 }
 
 sub build_casgene_hmmdb {
+    msg("Start building casgene hmm db");
 
     if ( !-e "$protein_hmm_dir/casgenes.hmm" ) {
 
@@ -631,6 +640,7 @@ sub build_casgene_hmmdb {
 }
 
 sub build_sqlite_db {
+    msg("Start building SQLite db");
 
     my ($sqlfile) = @_;
 
@@ -671,7 +681,7 @@ sub build_sqlite_db {
 }
 
 sub build_rRNAFinder_hmmdb {
-
+    msg("Start building rRNAFinder hmm db");
     #annotated seed alignments in STOCKHOLM format
     my $rfam = "Rfam.seed";
     if ( !-e "$tmp_dir/$rfam.gz" ) {
@@ -855,6 +865,7 @@ sub fasta2domain {
 }
 
 sub build_rRNAFinder_txondb {
+    msg("Start building rRNAFinder txondb");
 
     my $ssu = "SILVA_138.1_SSURef_NR99_tax_silva_trunc.fasta";
 
@@ -950,6 +961,7 @@ sub build_rRNAFinder_txondb {
 }
 
 sub build_enzyme_table {
+    msg("Start building enzyme table");
 
     if ( !-e "$tmp_dir/enzyme.dat" ) {
 
@@ -1012,6 +1024,7 @@ sub build_enzyme_table {
 }
 
 sub build_kegg_table {
+    msg("Start building kegg table");
 
     open( KEGG, "$txt_dir/ko00001.keg" )
       || die "Could not open $txt_dir/ko00001.keg to read, $!\n";
