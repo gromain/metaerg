@@ -3,7 +3,7 @@ From: ubuntu:20.04
 
 %environment
     export MinPath=/NGStools/MinPath
-    export PATH="/NGStools/aragorn:/NGStools/minced:/NGStools/Prodigal:/NGStools/ncbi-blast-2.9.0+/bin:/NGStools/diamond:/NGStools/hmmer/src:/NGStools/MinPath:/NGStools/metaerg/bin:${PATH}"
+    export PATH="/NGStools/aragorn:/NGStools/minced:/NGStools/Prodigal:/NGStools/ncbi-blast-2.12.0+/bin:/NGStools/diamond:/NGStools/hmmer/src:/NGStools/MinPath:/NGStools/metaerg/bin:${PATH}"
     export LANG="C"
 
 
@@ -46,9 +46,9 @@ From: ubuntu:20.04
 
     # blast for classifying rRNA sequences
     cd /NGStools
-    wget ftp://ftp.ncbi.nlm.nih.gov/blast/executables/blast+/2.9.0/ncbi-blast-2.9.0+-x64-linux.tar.gz
-    tar -xzf ncbi-blast-2.9.0+-x64-linux.tar.gz
-    rm ncbi-blast-2.9.0+-x64-linux.tar.gz
+    wget https://ftp.ncbi.nlm.nih.gov/blast/executables/blast+/2.12.0/ncbi-blast-2.12.0+-x64-linux.tar.gz
+    tar -xzf ncbi-blast-2.12.0+-x64-linux.tar.gz
+    rm ncbi-blast-2.12.0+-x64-linux.tar.gz
 
     # prodigal
     cd /NGStools
