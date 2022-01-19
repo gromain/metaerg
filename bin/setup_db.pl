@@ -826,8 +826,8 @@ sub fasta2domain {
                 -eutil   => 'efetch',
                 -db      => 'nucleotide',
                 -rettype => 'gb',
-                -email   => 'xiaolid@gmail.com',
-                -api_key => 'f0f0c0d0dedaa42991657439b7c577b0ce08',
+                -email   => 'gromain.baz@gmail.com',
+                -api_key => '40f4b4336c9245401fb49e39379f35fc5308',
                 -id      => $seqid
             );
             my $file = "$tmp_dir/myseqs.gb";
