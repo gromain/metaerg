@@ -44,9 +44,9 @@ positive Bacteria, Gram-negative Bacteria and Eukarya.
 # MetaErg reference DB
 MetaErg requires external databases that need to be downloaded and unarchived
 ```
-# Retrieve the prebuilt database (The current database were generated on Jan. 8, 2021)
-wget http://ebg.ucalgary.ca/metaerg/db.tar.gz -P $HOME
-tar -xvzf $HOME/db.tar.gz
+# Retrieve the prebuilt database (The current database were generated on 2022-01-20)
+wget https://metaerg.s3.fr-par.scw.cloud/db_2022-01-20.tar.gz -P $HOME
+tar -xvzf $HOME/db_2022-01-20.tar.gz
 ```
 or built using the supplied script (see running with singularity and installation sections).
 
