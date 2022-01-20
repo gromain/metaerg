@@ -112,8 +112,10 @@ sub build_uniprot_sprot_db {
 sub parse_uniprot_sport_dat {
     my ( $dat, $output ) = @_;
 
-    open( OUT, ">$output" ) or die "Could not open $output to write, $!\n";
-    open( DAT, $dat )       or die "Could not open $dat to read, $!\n";
+    open( my $OUT, ">", "$output" )
+      or die "Could not open $output to write, $!\n";
+
+    open( my $DAT, "<", $dat ) or die "Could not open $dat to read, $!\n";
     $/ = "\n//\n";
 
     my $HYPO = 'hypothetical protein';
@@ -122,7 +124,7 @@ sub parse_uniprot_sport_dat {
     my $in  = 0;
     my $out = 0;
 
-    while (<DAT>) {
+    while (<$DAT>) {
 
         # Read the entry
         my $entry = SWISS::Entry->fromText($_);
@@ -226,7 +228,7 @@ sub parse_uniprot_sport_dat {
         $kegg =~ s/;$//;
         $go   =~ s/;$//;
         $ec   =~ s/;$//;
-        print OUT "$id\t$KO\t$kegg\t$ec\t$desc\t$go\t$os\t$oc\n";
+        print $OUT "$id\t$KO\t$kegg\t$ec\t$desc\t$go\t$os\t$oc\n";
         $out++;
 
     }
@@ -274,14 +276,14 @@ sub build_pfam_db {
         my $where = $ff->fetch( to => $tmp_dir ) or die $ff->error;
     }
     if ( !-e "$tmp_dir/Pfam-A.hmm.sql.db.tsv" ) {
-        open( PFAM, "$tmp_dir/Pfam-A.hmm.dat" )
+        open( my $PFAM, "<", "$tmp_dir/Pfam-A.hmm.dat" )
           or die "Could not open $tmp_dir/Pfam-A.hmm.dat to read, $!\n";
-        open( SQL, ">$tmp_dir/Pfam-A.hmm.sql.db.tsv" )
+        open( my $SQL, ">", "$tmp_dir/Pfam-A.hmm.sql.db.tsv" )
           or die "Could not open $tmp_dir/Pfam-A.hmm.sql.db.tsv to write, $!\n";
 
         $/ = "\n# STOCKHOLM";
 
-        while (<PFAM>) {
+        while (<$PFAM>) {
             print STDERR "parse pfam\n";
             if (
 /GF\s+ID\s+(\S+).*?#=GF\s+AC\s+(\w+).*?#=GF\s+DE\s+(\S.*?)\n.*?#=GF\s+TP\s+(\S.*?)\n.*?#=GF\s+ML\s+(\d+)/s
@@ -295,32 +297,32 @@ sub build_pfam_db {
                 $de =~ s/\"/\"\"/g;
                 $id =~ s/\"/\"\"/g;
                 print STDERR join( "\t", ( $acc, $id, $de, $tp, $ml ) ), "\n";
-                print SQL join( "\t", ( $acc, $id, $de, $tp, $ml ) ),    "\n";
+                print $SQL join( "\t", ( $acc, $id, $de, $tp, $ml ) ), "\n";
 
             }
 
         }
-        close(SQL);
-        close(PFAM);
+        close($SQL);
+        close($PFAM);
 
         $/ = "\n";
     }
 
     if ( !-e "$tmp_dir/pfam2go.sqldb.tsv" ) {
-        open( SQL, ">$tmp_dir/pfam2go.sqldb.tsv" )
+        open( my $SQL, ">", "$tmp_dir/pfam2go.sqldb.tsv" )
           or die "Could not open $tmp_dir/pfam2go.sqldb.tsv to write, $!\n";
-        open( INPUT, "$tmp_dir/pfam2go" )
+        open( my $INPUT, "<", "$tmp_dir/pfam2go" )
           or die "Could not open $tmp_dir/pfam2go to read, $!\n";
 
-        while (<INPUT>) {
+        while (<$INPUT>) {
             chomp;
             next if /^!/;
             if (/Pfam:(\S+).*?;\s+(GO\S+)$/) {
-                print SQL "$1\t$2\n";
+                print $SQL "$1\t$2\n";
             }
         }
-        close(INPUT);
-        close(SQL);
+        close($INPUT);
+        close($SQL);
     }
 }
 
@@ -385,35 +387,35 @@ sub tigrfam_id2info_table {
     my ( $hmm, $roleL, $roleN, $out ) = @_;
     print STDERR "$hmm\n$roleL\n$roleN\n$out\n";
     my %fams = ();
-    open( HMM, $hmm ) or die "Could not open $hmm to read, $!\n";
+    open( my $HMM, "<", $hmm ) or die "Could not open $hmm to read, $!\n";
 
-    open( RLINK,  $roleL );
-    open( RNAMES, $roleN );
-    open( OUT,    ">$out" ) or die "Could not open $out to write, $!\n";
+    open( my $RLINK,  "<", $roleL );
+    open( my $RNAMES, "<", $roleN );
+    open( my $OUT,    ">", "$out" ) or die "Could not open $out to write, $!\n";
 
     #TIGR00001       158
-    while (<RLINK>) {
+    while (<$RLINK>) {
         chomp;
         my ( $ac, $roleid ) = split( /\t/, $_ );
         $fams{$ac}->{role_id} = $roleid;
     }
-    close(RLINK);
+    close($RLINK);
 
     my %roleid2role = ();
 
     #role_id:        100     mainrole:       Central intermediary metabolism
-    while (<RNAMES>) {
+    while (<$RNAMES>) {
         s/\://g;
         chomp;
         my @l = split( /\t/, $_ );
         shift @l;
         $roleid2role{ $l[0] }->{ $l[1] } = $l[2];
     }
-    close(RNAMES);
+    close($RNAMES);
 
     $/ = "\n\//";
 
-    while (<HMM>) {
+    while (<$HMM>) {
         if (/ACC\s+(\S.*?)\n.*LENG\s+(\d+)/s) {
             $fams{$1}->{LENG} = $2;
         }
@@ -427,8 +429,9 @@ sub tigrfam_id2info_table {
 
     foreach my $name (@dir_data) {
         $/ = undef;
-        open( NAME, "$dir/$name" ) or die "Cannot open file $dir/$name: $!\n";
-        my $data = <NAME>;
+        open( my $NAME, "<", "$dir/$name" )
+          or die "Cannot open file $dir/$name: $!\n";
+        my $data = <$NAME>;
 
         my ($ac) = $data =~ /\nAC\s+(TIGR\S+)/;
 
@@ -446,11 +449,11 @@ sub tigrfam_id2info_table {
         else                                 { $fams{$ac}->{EC} = ""; }
         if   ( $data =~ /^ID\s+(\S+?)\n/ ) { $fams{$ac}->{ID} = $1 }
         else                               { $fams{$ac}->{ID} = ""; }
-        close(NAME);
+        close($NAME);
 
     }
 
-    close(INPUTDIR);
+    close($INPUTDIR);
 
     foreach ( sort keys %fams ) {
         my $mainrole = "";
@@ -468,31 +471,31 @@ sub tigrfam_id2info_table {
             $mainrole =~ s/\"/\"\"/g;
             $sub1role =~ s/\"/\"\"/g;
         }
-        print OUT "$_\t";
-        print OUT $fams{$_}->{ID},   "\t";
-        print OUT $fams{$_}->{DE},   "\t";
-        print OUT $fams{$_}->{IT},   "\t";
-        print OUT $fams{$_}->{LENG}, "\t";
-        print OUT $fams{$_}->{GS},   "\t";
-        print OUT $fams{$_}->{EC},   "\t";
-        print OUT "$mainrole\t";
-        print OUT "$sub1role\n";
+        print $OUT "$_\t";
+        print $OUT $fams{$_}->{ID},   "\t";
+        print $OUT $fams{$_}->{DE},   "\t";
+        print $OUT $fams{$_}->{IT},   "\t";
+        print $OUT $fams{$_}->{LENG}, "\t";
+        print $OUT $fams{$_}->{GS},   "\t";
+        print $OUT $fams{$_}->{EC},   "\t";
+        print $OUT "$mainrole\t";
+        print $OUT "$sub1role\n";
     }
-    close(OUT);
+    close($OUT);
 }
 
 sub tigrfam_id2go_table {
 
     my ( $golink, $out ) = @_;
-    open( GO,  $golink ) or die "Could not open $golink to read, $!\n";
-    open( OUT, ">$out" ) or die "Could not open $out to write, $!\n";
-    while (<GO>) {
+    open( my $GO,  "<", $golink ) or die "Could not open $golink to read, $!\n";
+    open( my $OUT, ">", "$out" )  or die "Could not open $out to write, $!\n";
+    while (<$GO>) {
         chomp;
         my @line = split( /\t/, $_ );
-        print OUT "$line[0]\t$line[1]\n";
+        print $OUT "$line[0]\t$line[1]\n";
     }
-    close(GO);
-    close(OUT);
+    close($GO);
+    close($OUT);
 }
 
 sub build_go_db {
@@ -522,7 +525,7 @@ sub build_go_db {
 sub go_table {
 
     my ( $xml_input, $out ) = @_;
-    open( OUT, ">$out" ) or die "Could not open $out to write, $!\n";
+    open( my $OUT, ">", "$out" ) or die "Could not open $out to write, $!\n";
 
     # create object
     my $xml = new XML::Simple;
@@ -538,9 +541,9 @@ sub go_table {
         my $go_name = $term->{"go:name"};
         next if $go_name eq "all";
         $go_name =~ s/\"/\"\"/g;
-        print OUT "$go_acc\t$go_name\n";
+        print $OUT "$go_acc\t$go_name\n";
     }
-    close(OUT);
+    close($OUT);
 }
 
 sub build_foam_hmmdb {
@@ -682,6 +685,7 @@ sub build_sqlite_db {
 
 sub build_rRNAFinder_hmmdb {
     msg("Start building rRNAFinder hmm db");
+
     #annotated seed alignments in STOCKHOLM format
     my $rfam = "Rfam.seed";
     if ( !-e "$tmp_dir/$rfam.gz" ) {
@@ -721,11 +725,12 @@ sub build_rRNAFinder_hmmdb {
           or die "cannot open $queries{$_} to write, $!\n";
     }
 
-    open( STOCK, "$tmp_dir/$rfam" ) or die "cannot open $rfam for reading: $!";
+    open( my $STOCK, "<", "$tmp_dir/$rfam" )
+      or die "cannot open $rfam for reading: $!";
 
     my $i = 0;
     $/ = "\n\//";
-    while (<STOCK>) {
+    while (<$STOCK>) {
         chomp;
         if (/\#=GF\s+ID\s+(\S+)/s) {
             my $id = $1;
@@ -752,7 +757,7 @@ sub build_rRNAFinder_hmmdb {
     }
 
     $/ = "\n";
-    close(STOCK);
+    close($STOCK);
 
     #foreach (keys %rna_align_filehandlers){
     #	close($_);
@@ -803,17 +808,17 @@ sub fasta2domain {
     use Bio::DB::EUtilities;
     use Bio::SeqIO;
 
-    open( FASTA, "$tmp_dir/$fasta" )
+    open( my $FASTA, "<", "$tmp_dir/$fasta" )
       or die "Could not open $tmp_dir/$fasta to read, $!\n";
     $/ = "\n>";
-    open( BAC, ">$tmp_dir/bac\_$fasta" )
+    open( my $BAC, ">", "$tmp_dir/bac\_$fasta" )
       or die "Could not open $tmp_dir\/bac\_$fasta for writting, $!\n";
-    open( ARC, ">$tmp_dir\/arc\_$fasta" )
+    open( my $ARC, ">", "$tmp_dir\/arc\_$fasta" )
       or die "Could not open $tmp_dir\/arc\_$fasta for writting, $!\n";
-    open( EUK, ">$tmp_dir\/euk\_$fasta" )
+    open( my $EUK, ">", "$tmp_dir\/euk\_$fasta" )
       or die "Could not open $tmp_dir\/euk\_$fasta for writting, $!\n";
 
-    while (<FASTA>) {
+    while (<$FASTA>) {
         chomp;
         if ( my ( $seqid, $other, $align ) = /^>?(\S+?)(\/.*?)\n(.*)/s ) {
 
@@ -843,13 +848,13 @@ sub fasta2domain {
                 my @classification = $seq->species->classification;
                 my $lineage        = join( '\t', @classification );
                 if ( $lineage =~ /Bacteria/i ) {
-                    print BAC ">$seqid$other\n$align\n";
+                    print $BAC ">$seqid$other\n$align\n";
                 }
                 elsif ( $lineage =~ /Archaea/i ) {
-                    print ARC ">$seqid$other\n$align\n";
+                    print $ARC ">$seqid$other\n$align\n";
                 }
                 elsif ( $lineage =~ /Eukaryota/i ) {
-                    print EUK ">$seqid$other\n$align\n";
+                    print $EUK ">$seqid$other\n$align\n";
                 }
             }
 
@@ -858,10 +863,10 @@ sub fasta2domain {
     }
 
     $/ = "\n";
-    close(FASTA);
-    close(BAC);
-    close(ARC);
-    close(EUK);
+    close($FASTA);
+    close($BAC);
+    close($ARC);
+    close($EUK);
 }
 
 sub build_rRNAFinder_txondb {
@@ -902,48 +907,48 @@ sub build_rRNAFinder_txondb {
         $ae->extract( to => $tmp_dir );
     }
     if ( !-e "$blast_dir/silva_SSURef_Nr99.fasta" ) {
-        open( SSU, "$tmp_dir/$ssu" )
+        open( my $SSU, "<", "$tmp_dir/$ssu" )
           or die "Could not open $tmp_dir/$ssu to read, $!\n";
-        open( SSU_DNA, ">$blast_dir/silva_SSURef_Nr99.fasta" )
+        open( my $SSU_DNA, ">", "$blast_dir/silva_SSURef_Nr99.fasta" )
           || die
           "Could not open $blast_dir/silva_SSURef_Nr99.fasta to write, $!\n";
         msg(
 "get ssu DNA file from $tmp_dir/$ssu to $blast_dir/silva_SSURef_Nr99.fasta for blast search database making"
         );
-        while (<SSU>) {
+        while (<$SSU>) {
             if (/^>(\S+?)\s+(\S+.*)$/) {
 
-                print SSU_DNA ">$1 [$2]\n";
+                print $SSU_DNA ">$1 [$2]\n";
             }
             else {
                 s/U/T/g;
-                print SSU_DNA $_;
+                print $SSU_DNA $_;
             }
         }
-        close(SSU);
-        close(SSU_DNA);
+        close($SSU);
+        close($SSU_DNA);
     }
     if ( !-e "$blast_dir/silva_LSURef.fasta" ) {
-        open( LSU, "$tmp_dir/$lsu" )
+        open( my $LSU, "<", "$tmp_dir/$lsu" )
           or die "Could not open $tmp_dir/$lsu to read, $!\n";
-        open( LSU_DNA, ">$blast_dir/silva_LSURef.fasta" )
+        open( my $LSU_DNA, ">", "$blast_dir/silva_LSURef.fasta" )
           || die "Could not open $blast_dir/silva_LSURef.fasta to write, $!\n";
         msg(
 "get lsu DNA file from $tmp_dir/$lsu to $blast_dir/silva_LSURef.fasta for blast search database making"
         );
-        while (<LSU>) {
+        while (<$LSU>) {
             if (/^>(\S+?)\s+(\S+.*)$/) {
 
-                print LSU_DNA ">$1 [$2]\n";
+                print $LSU_DNA ">$1 [$2]\n";
             }
 
             else {
                 s/U/T/g;
-                print LSU_DNA $_;
+                print $LSU_DNA $_;
             }
         }
-        close(LSU);
-        close(LSU_DNA);
+        close($LSU);
+        close($LSU_DNA);
     }
 
     if ( !-e "$blast_dir/silva_SSURef_Nr99.fasta.nin" ) {
@@ -983,11 +988,11 @@ sub build_enzyme_table {
         #fetch the uri to local directory
         my $where = $ff->fetch( to => $tmp_dir ) or die $ff->error;
     }
-    open( OUT, ">$tmp_dir/enzyme.sqldb.tsv" )
+    open( my $OUT, ">", "$tmp_dir/enzyme.sqldb.tsv" )
       || die "Could not open $tmp_dir/enzyme.sqldb.tsv to write, $!\n";
-    open( CLASS, "$tmp_dir/enzclass.txt" )
+    open( my $CLASS, "<", "$tmp_dir/enzclass.txt" )
       || die "Could not open $tmp_dir/enzclass.txt to read, $!\n";
-    while (<CLASS>) {
+    while (<$CLASS>) {
         chomp;
         if (/(^\d+?\.\s*[0-9\-]+\.\s*[0-9\-]+\.\s*[0-9\-]+?)\s+(\S.*)$/) {
             my $id   = $1;
@@ -996,17 +1001,17 @@ sub build_enzyme_table {
             $name =~ s/^\s+//g;
             $name =~ s/\s+$//g;
             $name =~ s/\"/\"\"/g;
-            print OUT "$id\t$name\n";
+            print $OUT "$id\t$name\n";
         }
 
     }
-    close(CLASS);
+    close($CLASS);
 
     $/ = "\n\/\/";
-    open( ENZYME, "$tmp_dir/enzyme.dat" )
+    open( my $ENZYME, "<", "$tmp_dir/enzyme.dat" )
       || die "Could not open $tmp_dir/enzyme.dat to read, $!\n";
 
-    while (<ENZYME>) {
+    while (<$ENZYME>) {
 
         if (/\nID\s+?(\S+?)\nDE\s+(\S.*?)\n/s) {
             my $id   = $1;
@@ -1014,26 +1019,26 @@ sub build_enzyme_table {
             $name =~ s/^\s+//g;
             $name =~ s/\s+$//g;
             $name =~ s/\"/\"\"/g;
-            print OUT "$id\t$name\n";
+            print $OUT "$id\t$name\n";
         }
 
     }
-    close(ENZYME);
-    close(OUT);
+    close($ENZYME);
+    close($OUT);
     $/ = "\n";
 }
 
 sub build_kegg_table {
     msg("Start building kegg table");
 
-    open( KEGG, "$txt_dir/ko00001.keg" )
+    open( my $KEGG, "<", "$txt_dir/ko00001.keg" )
       || die "Could not open $txt_dir/ko00001.keg to read, $!\n";
-    open( OUT, ">$tmp_dir/ko.sqldb.tsv" )
+    open( my $OUT, ">", "$tmp_dir/ko.sqldb.tsv" )
       || die "Could not open $tmp_dir/ko.sqldb.tsv to write, $!\n";
 
     my %kos = ();
 
-    while (<KEGG>) {
+    while (<$KEGG>) {
         chomp;
         if (/^D\s+(\S+?)\s+?(\S.*)$/) {
             my $koid = $1;
@@ -1063,13 +1068,13 @@ sub build_kegg_table {
         }
 
     }
-    close(KEGG);
+    close($KEGG);
 
     foreach my $id ( sort keys %kos ) {
-        print OUT "$id\t$kos{$id}->{name}\t$kos{$id}->{de}\n";
+        print $OUT "$id\t$kos{$id}->{name}\t$kos{$id}->{de}\n";
     }
 
-    close(OUT);
+    close($OUT);
 
 }
 
