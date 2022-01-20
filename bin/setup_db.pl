@@ -453,7 +453,7 @@ sub tigrfam_id2info_table {
 
     }
 
-    close($INPUTDIR);
+    close(INPUTDIR);
 
     foreach ( sort keys %fams ) {
         my $mainrole = "";
