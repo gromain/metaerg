@@ -7,12 +7,10 @@ A MetaErg analysis output demo page can be found at: https://xiaoli-dong.github.
 
 A MetaErg Singularity image can be found here: https://cloud.sylabs.io/library/rbazile/default/metaerg
 
-Please cite the following: [Dong X and Strous M (2019) An Integrated Pipeline for Annotation and Visualization of Metagenomic Contigs. Front. Genet. 10:999. doi: 10.3389/fgene.2019.00999](http
-s://www.frontiersin.org/articles/10.3389/fgene.2019.00999/full)
+Please cite the following: [Dong X and Strous M (2019) An Integrated Pipeline for Annotation and Visualization of Metagenomic Contigs. Front. Genet. 10:999. doi: 10.3389/fgene.2019.00999](https://www.frontiersin.org/articles/10.3389/fgene.2019.00999/full)
 
 # Required perl modules
-If you do not use Docker, you will need to install perl modules. MetaErg requires Perl 5.6.0 or higher and runs on Linux platforms. Besides the perl core modules, it also requires the followin
-g perl modules to be installed:
+If you do not use Docker, you will need to install perl modules. MetaErg requires Perl 5.6.0 or higher and runs on Linux platforms. Besides the perl core modules, it also requires the following perl modules to be installed:
 ```
 * Archive::Extract;
 * Bio::Perl;
@@ -25,6 +23,7 @@ g perl modules to be installed:
 * SWISS::Entry;
 * SWISS::KW;
 ```
+
 # Third-party software
 If you do not use Docker, you will need to install the following 3rd party dependencies and make sure they are on your system path:
 
@@ -49,7 +48,7 @@ MetaErg requires external databases that need to be downloaded and unarchived
 wget http://ebg.ucalgary.ca/metaerg/db.tar.gz -P $HOME
 tar -xvzf $HOME/db.tar.gz
 ```
-or built using the supplied script (see running with docker and installation sections).
+or built using the supplied script (see running with singularity and installation sections).
 
 MetaErg databases were built based on the following publicly available databases:
 
@@ -59,29 +58,29 @@ MetaErg databases were built based on the following publicly available databases
 * [Pfam](http://pfam.xfam.org)
 * [SwissProt](https://www.uniprot.org/)
 * [SILVA](https://www.arb-silva.de/download/archive/)
-* [TIGRFAMS](http://tigrfams.jcvi.org/cgi-bin/index.cgi)
+* [TIGRFAMS](https://www.ncbi.nlm.nih.gov/genome/annotation_prok/tigrfams/)
 * [GTDBTK](https://github.com/Ecogenomics/GTDBTk)
 * [RefSeq](https://www.ncbi.nlm.nih.gov/refseq/)
 
-# Running with docker
-The MetaErg docker image is hosted on the docker hub: https://hub.docker.com/r/xiaolidong/docker-metaerg. Due to licencing permissions, this image does not contain [SignalP](http://www.cbs.dtu
-.dk/cgi-bin/nph-sw_request?signalp) and [TMHMM](http://www.cbs.dtu.dk/cgi-bin/nph-sw_request?tmhmm). When running with docker image, "--sp --tm" options cannot be enabled.
-```
-# Get the Docker image
-docker pull xiaolidong/docker-metaerg
+# Running with Singularity
+The MetaErg Singularity image is hosted on the sylabs hub: https://cloud.sylabs.io/library/rbazile/default/metaerg. Due to licencing permissions, this image does not contain [SignalP](http://www.cbs.dtu.dk/cgi-bin/nph-sw_request?signalp) and [TMHMM](http://www.cbs.dtu.dk/cgi-bin/nph-sw_request?tmhmm). When running the Singularity image, `--sp --tm` options cannot be enabled.
 
-# Databases and Docker
-With Docker, you can either use the downloaded prebuilt database or build a database with the command below. Building the database process will take a while to run:
-docker run --shm-size 2g --rm -u $(id -u):$(id -g) -it -v my_local_dir:/data/ xiaolidong/docker-metaerg setup_db.pl -o /data -v 132
+```
+# First, get the Singularity image
+singularity pull --arch amd64 metaerg_1.0.4.sif library://rbazile/default/metaerg:1.0.4
+
+# Databases and Singularity
+# With Singularity, you can either use the downloaded prebuilt database or build a database with the command below. Building the database process will take a while to run:
+singularity exec --bind my_local_dir:/data/ metaerg_1.0.4.sif setup_db.pl -o /data
 
 #Running MetaErg with default options
-docker run --shm-size 2g --rm -u $(id -u):$(id -g) -it -v my_local_dir:/data/ xiaolidong/docker-metaerg metaerg.pl --dbdir /data/db --outdir /data/my_metaerg_output /data/contig.fasta
+singularity exec --bind my_local_dir:/data/ metaerg_1.0.4.sif metaerg.pl --dbdir /data/db --outdir /data/my_metaerg_output /data/contig.fasta
 ```
 
 # Installation
 ```
 # Install metaerg to your home directory
-git clone https://github.com/xiaoli-dong/metaerg.git $HOME/metaerg
+git clone https://github.com/gromain/metaerg.git $HOME/metaerg
 
 # Using the downloaded prebuilt database
 # or build database using MetaErg supplied script and the building process will take a while to run
@@ -115,6 +114,7 @@ o included in the "example" folder.
 >perl $HOME/metaerg/bin/metaerg.pl --dbdir $home/db --plevel demo.proteomics.txt demo.fna
 ```
 -->
+
 # Utility scripts
 MetaErg includes some utility perl scripts and they can be used to filter contigs by length, add bin identifiers to predicted coding sequences:
 ```
@@ -139,6 +139,7 @@ Let's assume mybindir contains many nucleotide fasta files, one for each bin: Bi
 #Add bin ids to master.tsv file, as the first column
 >perl $HOME/metaerg/bin/add_binid2master_dot_tsv.pl -d binning -t mydir/data/master.tsv
 ```
+
 # MetaErg output directory layout
 MetaErg writes the output files into a user defined or MetaErg autogenerated output directory. An example of the MetaErg output directory layout is as following:
 
